@@ -16,16 +16,25 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.AccessToken;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.login.LoginManager;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.github.aqidd.firebaseauthsample.MainActivity;
 import io.github.aqidd.firebaseauthsample.R;
+import io.github.aqidd.firebaseauthsample.activities.MainActivity;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -39,6 +48,8 @@ public class LoginFragment extends Fragment
 
     @BindView(R.id.login_button)
     Button btLoginButton;
+    @BindView(R.id.facebook_login_button)
+    LoginButton btFacebookLogin;
     @BindView(R.id.forgot_password)
     TextView tvForgotPassword;
     @BindView(R.id.email_wrapper)
@@ -52,6 +63,8 @@ public class LoginFragment extends Fragment
 
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
+
+    private CallbackManager mCallbackManager;
 
     public LoginFragment()
     {
@@ -72,6 +85,33 @@ public class LoginFragment extends Fragment
             throw new RuntimeException(context.toString()
                                        + " must implement OnFragmentInteractionListener");
         }
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        mCallbackManager = CallbackManager.Factory.create();
+        LoginManager.getInstance().registerCallback(mCallbackManager, new FacebookCallback<LoginResult>()
+        {
+            @Override
+            public void onSuccess(LoginResult result)
+            {
+                facebookLoginSuccess(result.getAccessToken());
+            }
+
+            @Override
+            public void onCancel()
+            {
+                onFailed();
+            }
+
+            @Override
+            public void onError(FacebookException error)
+            {
+                onFailed();
+            }
+        });
     }
 
     @Override
@@ -104,6 +144,45 @@ public class LoginFragment extends Fragment
                 }
             }
         };
+
+        //get key hash for facebook
+        //try {
+        //    PackageInfo info = getActivity().getPackageManager().getPackageInfo(
+        //            "io.github.aqidd.firebaseauthsample",
+        //            PackageManager.GET_SIGNATURES);
+        //    for (android.content.pm.Signature signature : info.signatures) {
+        //        MessageDigest md = MessageDigest.getInstance("SHA");
+        //        md.update(signature.toByteArray());
+        //        Log.d("KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT));
+        //    }
+        //} catch (PackageManager.NameNotFoundException e) {
+        //
+        //} catch (NoSuchAlgorithmException e) {
+        //
+        //}
+
+        btFacebookLogin.setReadPermissions("email", "public_profile");
+        btFacebookLogin.setFragment(this);
+        btFacebookLogin.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>()
+        {
+            @Override
+            public void onSuccess(LoginResult result)
+            {
+                facebookLoginSuccess(result.getAccessToken());
+            }
+
+            @Override
+            public void onCancel()
+            {
+                onFailed();
+            }
+
+            @Override
+            public void onError(FacebookException error)
+            {
+                onFailed();
+            }
+        });
 
         btLoginButton.setOnClickListener(new View.OnClickListener()
         {
@@ -149,6 +228,13 @@ public class LoginFragment extends Fragment
     }
 
     @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        super.onActivityResult(requestCode, resultCode, data);
+        mCallbackManager.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
     public void onStop()
     {
         super.onStop();
@@ -163,6 +249,26 @@ public class LoginFragment extends Fragment
     {
         super.onDetach();
         mListener = null;
+    }
+
+    private void facebookLoginSuccess(AccessToken token)
+    {
+        AuthCredential lCredential = FacebookAuthProvider.getCredential(token.getToken());
+        mAuth.signInWithCredential(lCredential).addOnCompleteListener(new OnCompleteListener<AuthResult>()
+        {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task)
+            {
+                if (!task.isSuccessful())
+                {
+                    onFailed();
+                }
+                else
+                {
+                    onSuccess();
+                }
+            }
+        });
     }
 
     public void submitLogin()
