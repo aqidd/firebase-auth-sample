@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -14,6 +15,9 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -26,7 +30,8 @@ import io.github.aqidd.firebaseauthsample.R;
  * {@link OnLoginFragmentInteractionListener} interface
  * to handle interaction events.
  */
-public class LoginFragment extends Fragment {
+public class LoginFragment extends Fragment
+{
 
     private static final String TAG = LoginFragment.class.getSimpleName();
     @BindView(R.id.login_button)
@@ -37,17 +42,39 @@ public class LoginFragment extends Fragment {
     TextInputLayout tilEmailWrapper;
     @BindView(R.id.password_wrapper)
     TextInputLayout tilPasswordWrapper;
+    @BindView(R.id.register)
+    TextView tvRegister;
 
     private OnLoginFragmentInteractionListener mListener;
 
-    public LoginFragment() {
+    private FirebaseAuth mAuth;
+    private FirebaseAuth.AuthStateListener mAuthStateListener;
+
+    public LoginFragment()
+    {
         // Required empty public constructor
+        setArguments(new Bundle());
+    }
+
+    @Override
+    public void onAttach(Context context)
+    {
+        super.onAttach(context);
+        if (context instanceof OnLoginFragmentInteractionListener)
+        {
+            mListener = (OnLoginFragmentInteractionListener) context;
+        }
+        else
+        {
+            throw new RuntimeException(context.toString()
+                                       + " must implement OnFragmentInteractionListener");
+        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-
+                             Bundle savedInstanceState)
+    {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_login, container, false);
         ButterKnife.bind(this, v);
@@ -55,18 +82,55 @@ public class LoginFragment extends Fragment {
         getActivity().getWindow().setSoftInputMode(
                 WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-        btLoginButton.setOnClickListener(new View.OnClickListener() {
+        mAuth = FirebaseAuth.getInstance();
+        mAuthStateListener = new FirebaseAuth.AuthStateListener()
+        {
+
             @Override
-            public void onClick(View v) {
+            public void onAuthStateChanged(@NonNull FirebaseAuth auth)
+            {
+                FirebaseUser lUser = auth.getCurrentUser();
+                if (lUser != null)
+                {
+                    startActivity(new Intent(getContext(), MainActivity.class));
+                    getActivity().finish();
+                }
+                else
+                {
+                    // do nothing. wait for user to sign in.
+                }
+            }
+        };
+
+        btLoginButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
                 hideKeyboard();
                 submitLogin();
             }
         });
-        tvForgotPassword.setOnClickListener(new View.OnClickListener() {
+        tvForgotPassword.setOnClickListener(new View.OnClickListener()
+        {
             @Override
-            public void onClick(View v) {
-                if (mListener != null) {
+            public void onClick(View v)
+            {
+                if (mListener != null)
+                {
                     mListener.onForgotPasswordClick();
+                }
+            }
+        });
+
+        tvRegister.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                if (mListener != null)
+                {
+                    mListener.onRegisterClick();
                 }
             }
         });
@@ -74,11 +138,37 @@ public class LoginFragment extends Fragment {
         return v;
     }
 
-    public void submitLogin() {
+    @Override
+    public void onStart()
+    {
+        super.onStart();
+        mAuth.addAuthStateListener(mAuthStateListener);
+    }
+
+    @Override
+    public void onStop()
+    {
+        super.onStop();
+        if (mAuthStateListener != null)
+        {
+            mAuth.removeAuthStateListener(mAuthStateListener);
+        }
+    }
+
+    @Override
+    public void onDetach()
+    {
+        super.onDetach();
+        mListener = null;
+    }
+
+    public void submitLogin()
+    {
         String email = tilEmailWrapper.getEditText().getText().toString();
         String password = tilPasswordWrapper.getEditText().getText().toString();
 
-        if (!validate(email, password)) {
+        if (!validate(email, password))
+        {
             return;
         }
         //precaution for double click
@@ -93,29 +183,34 @@ public class LoginFragment extends Fragment {
          * TODO:PUT YOUR AUTH PROCESS BELOW
          */
         new android.os.Handler().postDelayed(
-                new Runnable() {
-                    public void run() {
+                new Runnable()
+                {
+                    public void run()
+                    {
                         // On complete call either onSuccess or onFailed
                         onSuccess();
                         // onFailed();
                         progressDialog.dismiss();
                     }
                 }, 2000
-        );
+                                            );
 
     }
 
-    public boolean validate(final String email, final String password) {
+    public boolean validate(final String email, final String password)
+    {
         boolean valid = true;
 
         /**
          * TODO:PUT YOUR FIELD VALIDATION BELOW
          */
-        if (email.length() == 0) {
+        if (email.length() == 0)
+        {
             tilEmailWrapper.setError("Email cannot be empty!");
             valid = false;
         }
-        if (password.length() == 0) {
+        if (password.length() == 0)
+        {
             tilPasswordWrapper.setError("Password cannot be empty!");
             valid = false;
         }
@@ -123,54 +218,35 @@ public class LoginFragment extends Fragment {
         return valid;
     }
 
-    public void onSuccess() {
+    public void onSuccess()
+    {
         btLoginButton.setEnabled(true);
         Intent intent = new Intent(getContext(), MainActivity.class);
         startActivity(intent);
         getActivity().finish();
     }
 
-    public void onFailed() {
+    public void onFailed()
+    {
         Toast.makeText(getContext(), "Login Failed", Toast.LENGTH_LONG).show();
         btLoginButton.setEnabled(true);
     }
 
-    private void hideKeyboard() {
+    private void hideKeyboard()
+    {
         View view = getActivity().getCurrentFocus();
-        if (view != null) {
-            ((InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).
-                    hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        if (view != null)
+        {
+            ((InputMethodManager) getActivity()
+                    .getSystemService(Context.INPUT_METHOD_SERVICE))
+                    .hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         }
     }
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnLoginFragmentInteractionListener) {
-            mListener = (OnLoginFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnLoginFragmentInteractionListener {
+    public interface OnLoginFragmentInteractionListener
+    {
         void onForgotPasswordClick();
+
+        void onRegisterClick();
     }
 }

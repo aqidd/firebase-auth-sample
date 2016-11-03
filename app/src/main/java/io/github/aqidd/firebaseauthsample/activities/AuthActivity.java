@@ -8,16 +8,21 @@ import android.support.v7.app.AppCompatActivity;
 import io.github.aqidd.firebaseauthsample.R;
 import io.github.aqidd.firebaseauthsample.fragments.ForgotPasswordFragment;
 import io.github.aqidd.firebaseauthsample.fragments.LoginFragment;
+import io.github.aqidd.firebaseauthsample.fragments.RegisterFragment;
 
-public class AuthActivity extends AppCompatActivity implements LoginFragment.OnLoginFragmentInteractionListener, ForgotPasswordFragment.OnForgotFragmentInteractionListener {
+public class AuthActivity extends AppCompatActivity implements LoginFragment.OnLoginFragmentInteractionListener,
+        ForgotPasswordFragment.OnForgotFragmentInteractionListener
+{
 
     FragmentManager fm = getSupportFragmentManager();
     FragmentTransaction ft = fm.beginTransaction();
     LoginFragment loginFragment = new LoginFragment();
     ForgotPasswordFragment forgotPasswordFragment = new ForgotPasswordFragment();
+    RegisterFragment registerFragment = new RegisterFragment();
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_auth);
 
@@ -28,24 +33,44 @@ public class AuthActivity extends AppCompatActivity implements LoginFragment.OnL
     }
 
     @Override
-    public void onForgotPasswordClick() {
+    public void onForgotPasswordClick()
+    {
         showForgotPassword();
     }
 
-    public void showForgotPassword() {
+    @Override
+    public void onRegisterClick()
+    {
+        showRegistrationForm();
+    }
+
+    @Override
+    public void onBackPressed()
+    {
+        if (getSupportFragmentManager().getBackStackEntryCount() == 0)
+        {
+            finish();
+        }
+        else
+        {
+            getSupportFragmentManager().popBackStack();
+        }
+    }
+
+    public void showForgotPassword()
+    {
         ft = fm.beginTransaction();
         ft.replace(R.id.fragment_container, forgotPasswordFragment);
         ft.addToBackStack("");
         ft.commit();
     }
 
-    @Override
-    public void onBackPressed() {
-        if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
-            finish();
-        } else {
-            getSupportFragmentManager().popBackStack();
-        }
+    public void showRegistrationForm()
+    {
+        ft = fm.beginTransaction();
+        ft.replace(R.id.fragment_container, registerFragment);
+        ft.addToBackStack("");
+        ft.commit();
     }
 }
 

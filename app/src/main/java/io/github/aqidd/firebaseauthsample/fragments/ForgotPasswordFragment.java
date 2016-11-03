@@ -21,7 +21,8 @@ import io.github.aqidd.firebaseauthsample.R;
  * {@link OnForgotFragmentInteractionListener} interface
  * to handle interaction events.
  */
-public class ForgotPasswordFragment extends Fragment {
+public class ForgotPasswordFragment extends Fragment
+{
 
 
     @BindView(R.id.forgot_submit)
@@ -31,21 +32,39 @@ public class ForgotPasswordFragment extends Fragment {
 
     private OnForgotFragmentInteractionListener mListener;
 
-    public ForgotPasswordFragment() {
+    public ForgotPasswordFragment()
+    {
         // Required empty public constructor
     }
 
+    @Override
+    public void onAttach(Context context)
+    {
+        super.onAttach(context);
+        if (context instanceof OnForgotFragmentInteractionListener)
+        {
+            mListener = (OnForgotFragmentInteractionListener) context;
+        }
+        else
+        {
+            throw new RuntimeException(context.toString()
+                                       + " must implement OnFragmentInteractionListener");
+        }
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+                             Bundle savedInstanceState)
+    {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_forgot_password, container, false);
         ButterKnife.bind(this, v);
 
-        btForgotSubmit.setOnClickListener(new View.OnClickListener() {
+        btForgotSubmit.setOnClickListener(new View.OnClickListener()
+        {
             @Override
-            public void onClick(View v) {
+            public void onClick(View v)
+            {
                 hideKeyboard();
                 submitForgotPassword();
             }
@@ -54,9 +73,18 @@ public class ForgotPasswordFragment extends Fragment {
         return v;
     }
 
-    private void submitForgotPassword() {
+    @Override
+    public void onDetach()
+    {
+        super.onDetach();
+        mListener = null;
+    }
+
+    private void submitForgotPassword()
+    {
         String email = tilEmailWrapper.getEditText().getText().toString();
-        if (!validateEmail(email)) {
+        if (!validateEmail(email))
+        {
             return;
         }
 
@@ -72,23 +100,27 @@ public class ForgotPasswordFragment extends Fragment {
          * TODO:PUT YOUR AUTH PROCESS BELOW
          */
         new android.os.Handler().postDelayed(
-                new Runnable() {
-                    public void run() {
+                new Runnable()
+                {
+                    public void run()
+                    {
                         // On complete call either onSuccess or onFailed
                         onSuccess();
                         // onFailed();
                         progressDialog.dismiss();
                     }
                 }, 2000
-        );
+                                            );
     }
 
-    public boolean validateEmail(String email) {
+    public boolean validateEmail(String email)
+    {
         boolean valid = true;
         /**
          * TODO:PUT YOUR FIELD VALIDATION BELOW
          */
-        if (email.length() == 0) {
+        if (email.length() == 0)
+        {
             tilEmailWrapper.setError("Email cannot be empty!");
             valid = false;
         }
@@ -96,40 +128,28 @@ public class ForgotPasswordFragment extends Fragment {
         return valid;
     }
 
-    private void hideKeyboard() {
+    private void hideKeyboard()
+    {
         View view = getActivity().getCurrentFocus();
-        if (view != null) {
+        if (view != null)
+        {
             ((InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).
-                    hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                                                                                                       hideSoftInputFromWindow(
+                                                                                                               view.getWindowToken(),
+                                                                                                               InputMethodManager.HIDE_NOT_ALWAYS);
         }
     }
 
-    private void onSuccess() {
+    private void onSuccess()
+    {
         //TODO:IMPLEMENT SUCCESS HANDLER HERE
         btForgotSubmit.setEnabled(true);
     }
 
-    private void onFailed() {
+    private void onFailed()
+    {
         //TODO:IMPLEMENT ERROR HANDLING HERE
         btForgotSubmit.setEnabled(true);
-    }
-
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnForgotFragmentInteractionListener) {
-            mListener = (OnForgotFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
     }
 
     /**
@@ -142,7 +162,8 @@ public class ForgotPasswordFragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnForgotFragmentInteractionListener {
+    public interface OnForgotFragmentInteractionListener
+    {
 
     }
 }
