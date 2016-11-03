@@ -3,6 +3,7 @@ package io.github.aqidd.firebaseauthsample.fragments;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -10,6 +11,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -99,18 +105,24 @@ public class ForgotPasswordFragment extends Fragment
         /**
          * TODO:PUT YOUR AUTH PROCESS BELOW
          */
-        new android.os.Handler().postDelayed(
-                new Runnable()
-                {
-                    public void run()
-                    {
-                        // On complete call either onSuccess or onFailed
-                        onSuccess();
-                        // onFailed();
-                        progressDialog.dismiss();
-                    }
-                }, 2000
-                                            );
+        FirebaseAuth.getInstance().sendPasswordResetEmail(email).addOnCompleteListener(getActivity(),
+                                                                                       new OnCompleteListener<Void>()
+                                                                                       {
+                                                                                           @Override
+                                                                                           public void onComplete(
+                                                                                                   @NonNull Task<Void> task)
+                                                                                           {
+                                                                                               progressDialog.dismiss();
+                                                                                               if (!task.isSuccessful())
+                                                                                               {
+                                                                                                   onFailed();
+                                                                                               }
+                                                                                               else
+                                                                                               {
+                                                                                                   onSuccess();
+                                                                                               }
+                                                                                           }
+                                                                                       });
     }
 
     public boolean validateEmail(String email)
@@ -143,27 +155,20 @@ public class ForgotPasswordFragment extends Fragment
     private void onSuccess()
     {
         //TODO:IMPLEMENT SUCCESS HANDLER HERE
+        mListener.showLoginForm();
+        Toast.makeText(getContext(), "Please Check Your Email!", Toast.LENGTH_SHORT).show();
         btForgotSubmit.setEnabled(true);
     }
 
     private void onFailed()
     {
         //TODO:IMPLEMENT ERROR HANDLING HERE
+        Toast.makeText(getContext(), "Reset Password Failed", Toast.LENGTH_SHORT).show();
         btForgotSubmit.setEnabled(true);
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
     public interface OnForgotFragmentInteractionListener
     {
-
+        void showLoginForm();
     }
 }

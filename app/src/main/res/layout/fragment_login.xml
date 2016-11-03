@@ -71,6 +71,19 @@
             android:textColor="@android:color/white"
             android:textStyle="bold" />
 
+        <Button
+            android:id="@+id/facebook_login_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="20.3dp"
+            android:background="#3B5998"
+            android:text="Facebook Sign In"
+            android:textAppearance="?android:textAppearanceSmall"
+            android:textColor="@android:color/white"
+            android:textStyle="bold" />
+
         <TextView
             android:id="@+id/forgot_password"
             android:layout_width="wrap_content"

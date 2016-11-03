@@ -16,6 +16,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -32,8 +35,8 @@ import io.github.aqidd.firebaseauthsample.R;
  */
 public class LoginFragment extends Fragment
 {
-
     private static final String TAG = LoginFragment.class.getSimpleName();
+
     @BindView(R.id.login_button)
     Button btLoginButton;
     @BindView(R.id.forgot_password)
@@ -182,18 +185,25 @@ public class LoginFragment extends Fragment
         /**
          * TODO:PUT YOUR AUTH PROCESS BELOW
          */
-        new android.os.Handler().postDelayed(
-                new Runnable()
-                {
-                    public void run()
-                    {
-                        // On complete call either onSuccess or onFailed
-                        onSuccess();
-                        // onFailed();
-                        progressDialog.dismiss();
-                    }
-                }, 2000
-                                            );
+        mAuth.signInWithEmailAndPassword(email, password)
+             .addOnCompleteListener(getActivity(),
+                                    new OnCompleteListener<AuthResult>()
+                                    {
+                                        @Override
+                                        public void onComplete(
+                                                @NonNull Task<AuthResult> task)
+                                        {
+                                            progressDialog.dismiss();
+                                            if (!task.isSuccessful())
+                                            {
+                                                onFailed();
+                                            }
+                                            else
+                                            {
+                                                onSuccess();
+                                            }
+                                        }
+                                    });
 
     }
 

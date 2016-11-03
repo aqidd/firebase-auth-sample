@@ -11,7 +11,8 @@ import io.github.aqidd.firebaseauthsample.fragments.LoginFragment;
 import io.github.aqidd.firebaseauthsample.fragments.RegisterFragment;
 
 public class AuthActivity extends AppCompatActivity implements LoginFragment.OnLoginFragmentInteractionListener,
-        ForgotPasswordFragment.OnForgotFragmentInteractionListener
+        ForgotPasswordFragment.OnForgotFragmentInteractionListener,
+        RegisterFragment.OnRegisterFragmentInteractionListener
 {
 
     FragmentManager fm = getSupportFragmentManager();
@@ -55,6 +56,15 @@ public class AuthActivity extends AppCompatActivity implements LoginFragment.OnL
         {
             getSupportFragmentManager().popBackStack();
         }
+    }
+
+    @Override
+    public void showLoginForm()
+    {
+        ft = fm.beginTransaction();
+        ft.replace(R.id.fragment_container, loginFragment);
+        ft.addToBackStack("");
+        ft.commit();
     }
 
     public void showForgotPassword()
