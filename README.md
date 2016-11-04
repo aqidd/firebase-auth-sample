@@ -2,6 +2,8 @@
 ----
 Contoh implementasi firebase auth.
 
+https://docs.google.com/presentation/d/1lHRSxL5IS6PmsMIlVZ7cTtNzgW7DBzq_OjbB__mvPbw/edit#slide=id.g18ae9142df_0_156
+
 **Prerequisites**
 
 1. Firebase console account
