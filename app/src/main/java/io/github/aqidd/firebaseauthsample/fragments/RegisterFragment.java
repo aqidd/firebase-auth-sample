@@ -5,11 +5,9 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -23,30 +21,30 @@ import butterknife.ButterKnife;
 import io.github.aqidd.firebaseauthsample.R;
 
 
-public class RegisterFragment extends Fragment
+public class RegisterFragment extends BaseFragment
 {
 
     private static final String TAG = RegisterFragment.class.getSimpleName();
 
-    @BindView(R.id.register_button)
+    @BindView (R.id.register_button)
     Button btRegister;
-    @BindView(R.id.email_wrapper)
+    @BindView (R.id.email_wrapper)
     TextInputLayout tilEmailWrapper;
-    @BindView(R.id.password_wrapper)
+    @BindView (R.id.password_wrapper)
     TextInputLayout tilPasswordWrapper;
 
     private FirebaseAuth mAuth;
 
     private OnRegisterFragmentInteractionListener mListener;
 
-    public RegisterFragment()
+    public RegisterFragment ()
     {
         // Required empty public constructor
         setArguments(new Bundle());
     }
 
     @Override
-    public void onAttach(Context context)
+    public void onAttach (Context context)
     {
         super.onAttach(context);
         if (context instanceof OnRegisterFragmentInteractionListener)
@@ -61,41 +59,52 @@ public class RegisterFragment extends Fragment
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState)
+    public void onCreate (Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState)
+    public View onCreateView (LayoutInflater inflater, ViewGroup container,
+                              Bundle savedInstanceState)
     {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_register, container, false);
         ButterKnife.bind(this, v);
-
         mAuth = FirebaseAuth.getInstance();
 
-        btRegister.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
-            {
-                hideKeyboard();
-                submitRegistration();
-            }
-        });
+        initUI();
+        initEvent();
 
         return v;
     }
 
     @Override
-    public void onDetach()
+    void initUI ()
+    {
+    }
+
+    @Override
+    void initEvent ()
+    {
+        btRegister.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick (View view)
+            {
+                hideKeyboard();
+                submitRegistration();
+            }
+        });
+    }
+
+    @Override
+    public void onDetach ()
     {
         super.onDetach();
     }
 
-    public void submitRegistration()
+    public void submitRegistration ()
     {
         String email = tilEmailWrapper.getEditText().getText().toString();
         String password = tilPasswordWrapper.getEditText().getText().toString();
@@ -119,7 +128,7 @@ public class RegisterFragment extends Fragment
              .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>()
              {
                  @Override
-                 public void onComplete(@NonNull Task<AuthResult> task)
+                 public void onComplete (@NonNull Task<AuthResult> task)
                  {
                      progressDialog.dismiss();
                      if (!task.isSuccessful())
@@ -135,7 +144,7 @@ public class RegisterFragment extends Fragment
 
     }
 
-    public boolean validate(final String email, final String password)
+    public boolean validate (final String email, final String password)
     {
         boolean valid = true;
 
@@ -156,31 +165,20 @@ public class RegisterFragment extends Fragment
         return valid;
     }
 
-    public void onSuccess()
+    public void onSuccess ()
     {
         Toast.makeText(getContext(), "Registration Success", Toast.LENGTH_SHORT).show();
         mListener.showLoginForm();
     }
 
-    public void onFailed()
+    public void onFailed ()
     {
         Toast.makeText(getContext(), "Registration Failed", Toast.LENGTH_LONG).show();
         btRegister.setEnabled(true);
     }
 
-    private void hideKeyboard()
-    {
-        View view = getActivity().getCurrentFocus();
-        if (view != null)
-        {
-            ((InputMethodManager) getActivity()
-                    .getSystemService(Context.INPUT_METHOD_SERVICE))
-                    .hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-        }
-    }
-
     public interface OnRegisterFragmentInteractionListener
     {
-        void showLoginForm();
+        void showLoginForm ();
     }
 }

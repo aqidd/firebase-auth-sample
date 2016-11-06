@@ -22,11 +22,12 @@ public class AuthActivity extends AppCompatActivity implements LoginFragment.OnL
     RegisterFragment registerFragment = new RegisterFragment();
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
+    protected void onCreate (Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_auth);
 
+        // init first fragment
         ft = fm.beginTransaction();
         ft.add(R.id.fragment_container, loginFragment);
         ft.commit();
@@ -34,19 +35,19 @@ public class AuthActivity extends AppCompatActivity implements LoginFragment.OnL
     }
 
     @Override
-    public void onForgotPasswordClick()
+    public void onForgotPasswordClick ()
     {
         showForgotPassword();
     }
 
     @Override
-    public void onRegisterClick()
+    public void onRegisterClick ()
     {
         showRegistrationForm();
     }
 
     @Override
-    public void onBackPressed()
+    public void onBackPressed ()
     {
         if (getSupportFragmentManager().getBackStackEntryCount() == 0)
         {
@@ -59,7 +60,7 @@ public class AuthActivity extends AppCompatActivity implements LoginFragment.OnL
     }
 
     @Override
-    public void showLoginForm()
+    public void showLoginForm ()
     {
         ft = fm.beginTransaction();
         ft.replace(R.id.fragment_container, loginFragment);
@@ -67,7 +68,7 @@ public class AuthActivity extends AppCompatActivity implements LoginFragment.OnL
         ft.commit();
     }
 
-    public void showForgotPassword()
+    public void showForgotPassword ()
     {
         ft = fm.beginTransaction();
         ft.replace(R.id.fragment_container, forgotPasswordFragment);
@@ -75,7 +76,7 @@ public class AuthActivity extends AppCompatActivity implements LoginFragment.OnL
         ft.commit();
     }
 
-    public void showRegistrationForm()
+    public void showRegistrationForm ()
     {
         ft = fm.beginTransaction();
         ft.replace(R.id.fragment_container, registerFragment);

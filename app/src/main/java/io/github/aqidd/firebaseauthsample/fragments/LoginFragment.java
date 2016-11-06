@@ -11,7 +11,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,7 +19,6 @@ import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
-import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -42,21 +40,21 @@ import io.github.aqidd.firebaseauthsample.activities.MainActivity;
  * {@link OnLoginFragmentInteractionListener} interface
  * to handle interaction events.
  */
-public class LoginFragment extends Fragment
+public class LoginFragment extends BaseFragment
 {
     private static final String TAG = LoginFragment.class.getSimpleName();
 
-    @BindView(R.id.login_button)
+    @BindView (R.id.login_button)
     Button btLoginButton;
-    @BindView(R.id.facebook_login_button)
+    @BindView (R.id.facebook_login_button)
     LoginButton btFacebookLogin;
-    @BindView(R.id.forgot_password)
+    @BindView (R.id.forgot_password)
     TextView tvForgotPassword;
-    @BindView(R.id.email_wrapper)
+    @BindView (R.id.email_wrapper)
     TextInputLayout tilEmailWrapper;
-    @BindView(R.id.password_wrapper)
+    @BindView (R.id.password_wrapper)
     TextInputLayout tilPasswordWrapper;
-    @BindView(R.id.register)
+    @BindView (R.id.register)
     TextView tvRegister;
 
     private OnLoginFragmentInteractionListener mListener;
@@ -66,14 +64,14 @@ public class LoginFragment extends Fragment
 
     private CallbackManager mCallbackManager;
 
-    public LoginFragment()
+    public LoginFragment ()
     {
         // Required empty public constructor
         setArguments(new Bundle());
     }
 
     @Override
-    public void onAttach(Context context)
+    public void onAttach (Context context)
     {
         super.onAttach(context);
         if (context instanceof OnLoginFragmentInteractionListener)
@@ -88,64 +86,24 @@ public class LoginFragment extends Fragment
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState)
+    public void onCreate (Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         mCallbackManager = CallbackManager.Factory.create();
-        LoginManager.getInstance().registerCallback(mCallbackManager, new FacebookCallback<LoginResult>()
-        {
-            @Override
-            public void onSuccess(LoginResult result)
-            {
-                facebookLoginSuccess(result.getAccessToken());
-            }
-
-            @Override
-            public void onCancel()
-            {
-                onFailed();
-            }
-
-            @Override
-            public void onError(FacebookException error)
-            {
-                onFailed();
-            }
-        });
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState)
+    public View onCreateView (LayoutInflater inflater, ViewGroup container,
+                              Bundle savedInstanceState)
     {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_login, container, false);
         ButterKnife.bind(this, v);
 
-        getActivity().getWindow().setSoftInputMode(
-                WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+        initUI();
+        initEvent();
 
-        mAuth = FirebaseAuth.getInstance();
-        mAuthStateListener = new FirebaseAuth.AuthStateListener()
-        {
-
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth auth)
-            {
-                FirebaseUser lUser = auth.getCurrentUser();
-                if (lUser != null)
-                {
-                    startActivity(new Intent(getContext(), MainActivity.class));
-                    getActivity().finish();
-                }
-                else
-                {
-                    // do nothing. wait for user to sign in.
-                }
-            }
-        };
-
-        //get key hash for facebook
+        // uncomment to get key hash for facebook
         //try {
         //    PackageInfo info = getActivity().getPackageManager().getPackageInfo(
         //            "io.github.aqidd.firebaseauthsample",
@@ -161,24 +119,58 @@ public class LoginFragment extends Fragment
         //
         //}
 
+        return v;
+    }
+
+    @Override
+    void initUI ()
+    {
+        getActivity().getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+
+        mAuth = FirebaseAuth.getInstance();
+        mAuthStateListener = new FirebaseAuth.AuthStateListener()
+        {
+
+            @Override
+            public void onAuthStateChanged (@NonNull FirebaseAuth auth)
+            {
+                FirebaseUser lUser = auth.getCurrentUser();
+                if (lUser != null)
+                {
+                    startActivity(new Intent(getContext(), MainActivity.class));
+                    getActivity().finish();
+                }
+                else
+                {
+                    // do nothing. wait for user to sign in.
+                    Toast.makeText(getContext(), "Login Dulu plz", Toast.LENGTH_SHORT).show();
+                }
+            }
+        };
+    }
+
+    @Override
+    void initEvent ()
+    {
         btFacebookLogin.setReadPermissions("email", "public_profile");
         btFacebookLogin.setFragment(this);
         btFacebookLogin.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>()
         {
             @Override
-            public void onSuccess(LoginResult result)
+            public void onSuccess (LoginResult result)
             {
                 facebookLoginSuccess(result.getAccessToken());
             }
 
             @Override
-            public void onCancel()
+            public void onCancel ()
             {
                 onFailed();
             }
 
             @Override
-            public void onError(FacebookException error)
+            public void onError (FacebookException error)
             {
                 onFailed();
             }
@@ -187,16 +179,17 @@ public class LoginFragment extends Fragment
         btLoginButton.setOnClickListener(new View.OnClickListener()
         {
             @Override
-            public void onClick(View v)
+            public void onClick (View view)
             {
                 hideKeyboard();
                 submitLogin();
             }
         });
+
         tvForgotPassword.setOnClickListener(new View.OnClickListener()
         {
             @Override
-            public void onClick(View v)
+            public void onClick (View v)
             {
                 if (mListener != null)
                 {
@@ -208,7 +201,7 @@ public class LoginFragment extends Fragment
         tvRegister.setOnClickListener(new View.OnClickListener()
         {
             @Override
-            public void onClick(View view)
+            public void onClick (View view)
             {
                 if (mListener != null)
                 {
@@ -216,26 +209,24 @@ public class LoginFragment extends Fragment
                 }
             }
         });
-
-        return v;
     }
 
     @Override
-    public void onStart()
+    public void onStart ()
     {
         super.onStart();
         mAuth.addAuthStateListener(mAuthStateListener);
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data)
+    public void onActivityResult (int requestCode, int resultCode, Intent data)
     {
         super.onActivityResult(requestCode, resultCode, data);
         mCallbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
-    public void onStop()
+    public void onStop ()
     {
         super.onStop();
         if (mAuthStateListener != null)
@@ -245,19 +236,19 @@ public class LoginFragment extends Fragment
     }
 
     @Override
-    public void onDetach()
+    public void onDetach ()
     {
         super.onDetach();
         mListener = null;
     }
 
-    private void facebookLoginSuccess(AccessToken token)
+    private void facebookLoginSuccess (AccessToken token)
     {
         AuthCredential lCredential = FacebookAuthProvider.getCredential(token.getToken());
         mAuth.signInWithCredential(lCredential).addOnCompleteListener(new OnCompleteListener<AuthResult>()
         {
             @Override
-            public void onComplete(@NonNull Task<AuthResult> task)
+            public void onComplete (@NonNull Task<AuthResult> task)
             {
                 if (!task.isSuccessful())
                 {
@@ -271,10 +262,10 @@ public class LoginFragment extends Fragment
         });
     }
 
-    public void submitLogin()
+    public void submitLogin ()
     {
-        String email = tilEmailWrapper.getEditText().getText().toString();
-        String password = tilPasswordWrapper.getEditText().getText().toString();
+        final String email = tilEmailWrapper.getEditText().getText().toString();
+        final String password = tilPasswordWrapper.getEditText().getText().toString();
 
         if (!validate(email, password))
         {
@@ -292,28 +283,26 @@ public class LoginFragment extends Fragment
          * TODO:PUT YOUR AUTH PROCESS BELOW
          */
         mAuth.signInWithEmailAndPassword(email, password)
-             .addOnCompleteListener(getActivity(),
-                                    new OnCompleteListener<AuthResult>()
-                                    {
-                                        @Override
-                                        public void onComplete(
-                                                @NonNull Task<AuthResult> task)
-                                        {
-                                            progressDialog.dismiss();
-                                            if (!task.isSuccessful())
-                                            {
-                                                onFailed();
-                                            }
-                                            else
-                                            {
-                                                onSuccess();
-                                            }
-                                        }
-                                    });
+             .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>()
+             {
+                 @Override
+                 public void onComplete (@NonNull Task<AuthResult> task)
+                 {
+                     progressDialog.dismiss();
+                     if (!task.isSuccessful())
+                     {
+                         onFailed();
+                     }
+                     else
+                     {
+                         onSuccess();
+                     }
+                 }
+             });
 
     }
 
-    public boolean validate(final String email, final String password)
+    public boolean validate (final String email, final String password)
     {
         boolean valid = true;
 
@@ -334,7 +323,7 @@ public class LoginFragment extends Fragment
         return valid;
     }
 
-    public void onSuccess()
+    public void onSuccess ()
     {
         btLoginButton.setEnabled(true);
         Intent intent = new Intent(getContext(), MainActivity.class);
@@ -342,27 +331,16 @@ public class LoginFragment extends Fragment
         getActivity().finish();
     }
 
-    public void onFailed()
+    public void onFailed ()
     {
         Toast.makeText(getContext(), "Login Failed", Toast.LENGTH_LONG).show();
         btLoginButton.setEnabled(true);
     }
 
-    private void hideKeyboard()
-    {
-        View view = getActivity().getCurrentFocus();
-        if (view != null)
-        {
-            ((InputMethodManager) getActivity()
-                    .getSystemService(Context.INPUT_METHOD_SERVICE))
-                    .hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-        }
-    }
-
     public interface OnLoginFragmentInteractionListener
     {
-        void onForgotPasswordClick();
+        void onForgotPasswordClick ();
 
-        void onRegisterClick();
+        void onRegisterClick ();
     }
 }

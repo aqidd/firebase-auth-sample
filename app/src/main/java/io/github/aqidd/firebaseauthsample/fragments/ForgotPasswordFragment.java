@@ -9,7 +9,6 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -27,24 +26,25 @@ import io.github.aqidd.firebaseauthsample.R;
  * {@link OnForgotFragmentInteractionListener} interface
  * to handle interaction events.
  */
-public class ForgotPasswordFragment extends Fragment
+public class ForgotPasswordFragment extends BaseFragment
 {
 
 
-    @BindView(R.id.forgot_submit)
+    @BindView (R.id.forgot_submit)
     protected Button btForgotSubmit;
-    @BindView(R.id.email_wrapper)
+    @BindView (R.id.email_wrapper)
     protected TextInputLayout tilEmailWrapper;
 
     private OnForgotFragmentInteractionListener mListener;
 
-    public ForgotPasswordFragment()
+    public ForgotPasswordFragment ()
     {
         // Required empty public constructor
+        setArguments(new Bundle());
     }
 
     @Override
-    public void onAttach(Context context)
+    public void onAttach (Context context)
     {
         super.onAttach(context);
         if (context instanceof OnForgotFragmentInteractionListener)
@@ -59,34 +59,47 @@ public class ForgotPasswordFragment extends Fragment
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState)
+    public View onCreateView (LayoutInflater inflater, ViewGroup container,
+                              Bundle savedInstanceState)
     {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_forgot_password, container, false);
         ButterKnife.bind(this, v);
 
+        initUI();
+        initEvent();
+
+        return v;
+    }
+
+    @Override
+    void initUI ()
+    {
+    }
+
+    @Override
+    void initEvent ()
+    {
         btForgotSubmit.setOnClickListener(new View.OnClickListener()
         {
             @Override
-            public void onClick(View v)
+            public void onClick (View v)
             {
                 hideKeyboard();
                 submitForgotPassword();
             }
         });
 
-        return v;
     }
 
     @Override
-    public void onDetach()
+    public void onDetach ()
     {
         super.onDetach();
         mListener = null;
     }
 
-    private void submitForgotPassword()
+    private void submitForgotPassword ()
     {
         String email = tilEmailWrapper.getEditText().getText().toString();
         if (!validateEmail(email))
@@ -105,27 +118,26 @@ public class ForgotPasswordFragment extends Fragment
         /**
          * TODO:PUT YOUR AUTH PROCESS BELOW
          */
-        FirebaseAuth.getInstance().sendPasswordResetEmail(email).addOnCompleteListener(getActivity(),
-                                                                                       new OnCompleteListener<Void>()
-                                                                                       {
-                                                                                           @Override
-                                                                                           public void onComplete(
-                                                                                                   @NonNull Task<Void> task)
-                                                                                           {
-                                                                                               progressDialog.dismiss();
-                                                                                               if (!task.isSuccessful())
-                                                                                               {
-                                                                                                   onFailed();
-                                                                                               }
-                                                                                               else
-                                                                                               {
-                                                                                                   onSuccess();
-                                                                                               }
-                                                                                           }
-                                                                                       });
+        FirebaseAuth.getInstance().sendPasswordResetEmail(email)
+                    .addOnCompleteListener(getActivity(), new OnCompleteListener<Void>()
+                    {
+                        @Override
+                        public void onComplete (@NonNull Task<Void> task)
+                        {
+                            progressDialog.dismiss();
+                            if (!task.isSuccessful())
+                            {
+                                onFailed();
+                            }
+                            else
+                            {
+                                onSuccess();
+                            }
+                        }
+                    });
     }
 
-    public boolean validateEmail(String email)
+    public boolean validateEmail (String email)
     {
         boolean valid = true;
         /**
@@ -140,19 +152,8 @@ public class ForgotPasswordFragment extends Fragment
         return valid;
     }
 
-    private void hideKeyboard()
-    {
-        View view = getActivity().getCurrentFocus();
-        if (view != null)
-        {
-            ((InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).
-                                                                                                       hideSoftInputFromWindow(
-                                                                                                               view.getWindowToken(),
-                                                                                                               InputMethodManager.HIDE_NOT_ALWAYS);
-        }
-    }
 
-    private void onSuccess()
+    private void onSuccess ()
     {
         //TODO:IMPLEMENT SUCCESS HANDLER HERE
         mListener.showLoginForm();
@@ -160,7 +161,7 @@ public class ForgotPasswordFragment extends Fragment
         btForgotSubmit.setEnabled(true);
     }
 
-    private void onFailed()
+    private void onFailed ()
     {
         //TODO:IMPLEMENT ERROR HANDLING HERE
         Toast.makeText(getContext(), "Reset Password Failed", Toast.LENGTH_SHORT).show();
@@ -169,6 +170,6 @@ public class ForgotPasswordFragment extends Fragment
 
     public interface OnForgotFragmentInteractionListener
     {
-        void showLoginForm();
+        void showLoginForm ();
     }
 }
