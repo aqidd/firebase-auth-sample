@@ -1,6 +1,6 @@
 # firebase-auth-sample
 ----
-Contoh implementasi firebase auth.
+Contoh implementasi firebase auth. Silahkan cek `develop` branch untuk kode lebih lengkap. `master` branch hanya untuk project skeleton tanpa contoh implementasi Firebase.
 
 See the complete description on slideshare!
 <iframe src="//www.slideshare.net/slideshow/embed_code/key/2gVEfsPM9VBPYV" width="595" height="485" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC; border-width:1px; margin-bottom:5px; max-width: 100%;" allowfullscreen> </iframe> <div style="margin-bottom:5px"> <strong> <a href="//www.slideshare.net/aqidd1/firebase-auth-tutorial" title="Firebase Auth Tutorial" target="_blank">Firebase Auth Tutorial</a> </strong> from <strong><a target="_blank" href="//www.slideshare.net/aqidd1">Bukhori Aqid</a></strong> </div>
